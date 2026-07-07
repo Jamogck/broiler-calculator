@@ -1,5 +1,5 @@
 import type { Breed, CalculatorState, Results } from "@/types";
-import { fmt0, money } from "@/lib/format";
+import { fmt0, fmt1, money } from "@/lib/format";
 import {
   HAIRLINE,
   INK,
@@ -169,7 +169,19 @@ export default function InputsColumn({
             <TypicalButton onClick={() => h.resetField("targetLiveWeight")} />
           </div>
         </InputRow>
-        <div style={{ height: 1, background: HAIRLINE, margin: "6px 0" }} />
+        <div
+          style={{
+            ...helperStyle,
+            padding: "0 0 8px",
+            borderBottom: `1px solid ${HAIRLINE}`,
+          }}
+        >
+          That&apos;s about{" "}
+          <strong style={{ color: "#33302a" }}>
+            {fmt1(results.dressedWeightPerBird)} lb dressed
+          </strong>{" "}
+          (finished) per bird at your yield.
+        </div>
 
         <InputRow label="Dressed yield" unit="%" divider="none">
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
