@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #f4f2ec; }
+  a { color: oklch(0.52 0.09 150); }
+  a:hover { color: oklch(0.44 0.09 150); }
+  input:focus, select:focus { outline: 2px solid oklch(0.72 0.09 150 / 0.5); outline-offset: 0; }
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:#f4f2ec;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#26241f;padding:26px 20px 64px;-webkit-font-smoothing:antialiased">
+  <div style="max-width:1200px;margin:0 auto">
+
+    <!-- Header -->
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:18px">
+      <div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:oklch(0.52 0.09 150);margin-bottom:6px">Pastured Poultry · Field Tool</div>
+        <h1 style="margin:0;font-size:29px;font-weight:700;letter-spacing:-0.01em;line-height:1.1">Broiler Feed &amp; Profit Calculator</h1>
+        <p style="margin:6px 0 0;font-size:14px;color:#736d61;max-width:560px;line-height:1.5">Plug in what you know. It fills in sensible defaults and estimates your feed, costs, and take-home—so you can plan a flock before you order chicks.</p>
+      </div>
+      <button onClick="{{ copyLink }}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.03em;background:oklch(0.52 0.09 150);color:#fff;border:none;border-radius:8px;padding:11px 16px;cursor:pointer;white-space:nowrap;font-weight:500">{{ copyLabel }}</button>
+    </div>
+
+    <!-- Live summary sentence -->
+    <div style="background:#fffdf9;border:1px solid #e5e1d7;border-left:4px solid {{ summaryAccent }};border-radius:10px;padding:16px 18px;margin-bottom:20px">
+      <p style="margin:0;font-size:17px;line-height:1.5;color:#33302a;text-wrap:pretty">{{ summarySentence }}</p>
+    </div>
+
+    <!-- Two-column: inputs | outputs -->
+    <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+
+      <!-- ============ INPUTS ============ -->
+      <div style="flex:1 1 350px;max-width:430px;min-width:300px">
+
+        <!-- Quick Estimate -->
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 16px 8px;margin-bottom:14px">
+          <h3 style="margin:0 0 6px;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.05 150)">Quick estimate</h3>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Chicks started</label>
+            <input type="number" min="0" name="chicksStarted" value="{{ chicksStarted }}" onChange="{{ onField }}" style="width:96px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Breed / type</label>
+            <select name="breed" value="{{ breed }}" onChange="{{ onField }}" style="width:180px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;background:#fff;color:#26241f">
+              <option value="cornish">Cornish Cross</option>
+              <option value="ranger">Red Ranger / Freedom Ranger</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Chick arrival date</label>
+            <input type="date" name="arrivalDate" value="{{ arrivalDate }}" onChange="{{ onField }}" style="width:150px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;background:#fff;color:#26241f">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Current age <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(days)</span></label>
+            <input type="number" min="0" name="currentAge" value="{{ currentAgeDays }}" onChange="{{ onField }}" style="width:96px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:2px 0 8px;line-height:1.4">Set the arrival date <em>or</em> type today's age—each keeps the other in sync.</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Processing age <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(days)</span></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" min="35" max="120" name="processingAgeDays" value="{{ processingAgeDays }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="processingAgeDays" onClick="{{ onResetField }}" style="font-size:10px;letter-spacing:.03em;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Feed cost per bag</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.5" name="feedCostPerBag" value="{{ feedCostPerBag }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Bag size <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(lb)</span></label>
+            <input type="number" min="1" name="bagSize" value="{{ bagSize }}" onChange="{{ onField }}" style="width:96px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+        </section>
+
+        <!-- Assumptions -->
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 16px 8px;margin-bottom:14px">
+          <h3 style="margin:0 0 6px;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.05 150)">Assumptions</h3>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Mortality <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(%)</span></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" min="0" max="50" step="0.5" name="mortalityPct" value="{{ mortalityPct }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="mortalityPct" onClick="{{ onResetField }}" style="font-size:10px;letter-spacing:.03em;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:0 0 8px;line-height:1.4;border-bottom:1px solid #f0ede4">5% is a fair plan. Allowed range 0–50%.</div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Target live weight <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(lb)</span></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" min="0" step="0.1" name="targetLiveWeight" value="{{ targetLiveWeight }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="targetLiveWeight" onClick="{{ onResetField }}" style="font-size:10px;letter-spacing:.03em;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="height:1px;background:#f0ede4;margin:6px 0"></div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Dressed yield <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(%)</span></label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" min="50" max="80" step="0.5" name="dressedYieldPct" value="{{ dressedYieldPct }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="dressedYieldPct" onClick="{{ onResetField }}" style="font-size:10px;letter-spacing:.03em;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:0 0 8px;line-height:1.4;border-bottom:1px solid #f0ede4">Dressed weight is usually about 70–72% of live weight.</div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0 4px">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Feed conversion ratio</label>
+            <div style="display:flex;align-items:center;gap:6px">
+              <input type="number" min="2" max="6" step="0.1" name="fcr" value="{{ fcr }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="fcr" onClick="{{ onResetField }}" style="font-size:10px;letter-spacing:.03em;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:0 0 8px;line-height:1.4;border-bottom:1px solid #f0ede4">Lower is better. 3.0 is excellent, 3.5 is common, 4.0+ means something may be off.</div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Chick cost <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(each)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="chickCost" value="{{ chickCost }}" onChange="{{ onField }}" style="width:64px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="chickCost" onClick="{{ onResetField }}" style="font-size:10px;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Processing <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(per bird)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="processingCostPerBird" value="{{ processingCostPerBird }}" onChange="{{ onField }}" style="width:64px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="processingCostPerBird" onClick="{{ onResetField }}" style="font-size:10px;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Packaging <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(per bird)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="packagingCostPerBird" value="{{ packagingCostPerBird }}" onChange="{{ onField }}" style="width:64px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="packagingCostPerBird" onClick="{{ onResetField }}" style="font-size:10px;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Misc <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">(per bird)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="miscCostPerBird" value="{{ miscCostPerBird }}" onChange="{{ onField }}" style="width:64px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+              <button data-field="miscCostPerBird" onClick="{{ onResetField }}" style="font-size:10px;color:oklch(0.5 0.05 150);background:none;border:1px solid #e0dccf;border-radius:5px;padding:5px 6px;cursor:pointer;font-family:'IBM Plex Mono',monospace">typical</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Sales -->
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 16px 8px;margin-bottom:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px">
+            <h3 style="margin:0;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.05 150)">Sales</h3>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#8a8474;font-family:'IBM Plex Mono',monospace;user-select:none"><input type="checkbox" name="includeSales" checked="{{ includeSales }}" onChange="{{ onField }}" style="width:15px;height:15px;accent-color:oklch(0.52 0.09 150);cursor:pointer">include</label>
+          </div>
+          <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:11.5px;color:#a39c8d;line-height:1.4;padding:2px 0 6px">Not counting sales — this flock is for your own table.</p></sc-if>
+          <sc-if value="{{ includeSales }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Retail price <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">($/lb)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="retailPricePerLb" value="{{ retailPricePerLb }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Birds sold at retail</label>
+            <input type="number" min="0" name="birdsSoldRetail" value="{{ birdsSoldRetail }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:0 0 10px;line-height:1.4">You'll have about <strong style="color:#33302a">{{ survivingBirdsFmt }} birds</strong> to sell after mortality. Any you keep just aren't counted as income.</div>
+          <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#a39c8d;font-family:'IBM Plex Mono',monospace;padding:8px 0 2px;border-top:1px solid #f0ede4">Wholesale · optional</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Wholesale price <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">($/lb)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.25" name="wholesalePricePerLb" value="{{ wholesalePricePerLb }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Birds sold wholesale</label>
+            <input type="number" min="0" name="birdsSoldWholesale" value="{{ birdsSoldWholesale }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:0 0 8px;line-height:1.4">Leave at 0 if you only sell retail.</div>
+          </sc-if>
+        </section>
+
+        <!-- Labor -->
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 16px 8px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 6px">
+            <h3 style="margin:0;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:oklch(0.5 0.05 150)">Labor</h3>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#8a8474;font-family:'IBM Plex Mono',monospace;user-select:none"><input type="checkbox" name="includeLabor" checked="{{ includeLabor }}" onChange="{{ onField }}" style="width:15px;height:15px;accent-color:oklch(0.52 0.09 150);cursor:pointer">include</label>
+          </div>
+          <sc-if value="{{ noLabor }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:11.5px;color:#a39c8d;line-height:1.4;padding:2px 0 6px">Not counting your labor as a cost.</p></sc-if>
+          <sc-if value="{{ includeLabor }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #f0ede4">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Total labor hours</label>
+            <input type="number" min="0" name="laborHours" value="{{ laborHours }}" onChange="{{ onField }}" style="width:96px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0">
+            <label style="font-size:13px;color:#3f3b33;flex:1">Target wage <span style="color:#a39c8d;font-family:'IBM Plex Mono',monospace;font-size:11px">($/hr)</span></label>
+            <div style="display:flex;align-items:center;gap:6px"><span style="color:#a39c8d;font-size:13px">$</span>
+              <input type="number" min="0" step="0.5" name="targetWage" value="{{ targetWage }}" onChange="{{ onField }}" style="width:70px;padding:6px 8px;border:1px solid #d8d3c7;border-radius:6px;font:inherit;font-size:13px;text-align:right;background:#fff;color:#26241f"></div>
+          </div>
+          <div style="font-size:11px;color:#8a8474;padding:6px 0 8px;line-height:1.4">At the profit above, your labor actually earns <strong style="color:#33302a">{{ laborEarnedFmt }}/hr</strong>.</div>
+          </sc-if>
+        </section>
+      </div>
+
+      <!-- ============ OUTPUTS ============ -->
+      <div style="flex:999 1 560px;min-width:320px">
+
+        <!-- ===== TIER 1 · FEED (the hero) ===== -->
+        <section style="background:linear-gradient(180deg,#f3f7f0,#fffdf9 60%);border:1px solid oklch(0.83 0.05 150);border-radius:14px;padding:22px 22px 6px;margin-bottom:18px">
+          <div style="display:flex;flex-wrap:wrap;gap:24px 32px;align-items:flex-start">
+            <!-- Primary: total feed + cost -->
+            <div style="flex:2 1 260px;min-width:220px">
+              <div style="font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:oklch(0.5 0.06 150);font-family:'IBM Plex Mono',monospace;margin-bottom:6px">Feed to raise this flock</div>
+              <div style="font-size:52px;font-weight:700;line-height:0.95;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;color:#26241f">{{ totalFeedFmt }}<span style="font-size:20px;font-weight:500;color:#8a8474;margin-left:6px">lb</span></div>
+              <div style="display:flex;align-items:baseline;gap:14px;margin-top:14px;flex-wrap:wrap">
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-size:26px;font-weight:600;font-variant-numeric:tabular-nums">{{ feedBags }}</span>
+                  <span style="font-size:13px;color:#8a8474">× {{ bagSize }} lb bags</span>
+                </div>
+                <span style="color:oklch(0.8 0.03 150)">→</span>
+                <div style="display:flex;align-items:baseline;gap:6px">
+                  <span style="font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(0.44 0.09 150)">{{ feedCostFmt }}</span>
+                  <span style="font-size:13px;color:#8a8474">in feed</span>
+                </div>
+              </div>
+            </div>
+            <!-- Secondary: today + peak -->
+            <div style="flex:1 1 200px;min-width:180px;display:flex;flex-direction:column;gap:12px;border-left:1px solid oklch(0.87 0.03 150);padding-left:24px">
+              <div>
+                <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#8a8474;font-family:'IBM Plex Mono',monospace">Feed today · day {{ currentAgeDays }}</div>
+                <div style="font-size:34px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums;color:oklch(0.5 0.13 55)">{{ todayRationFmt }}<span style="font-size:14px;font-weight:500;color:#8a8474;margin-left:5px">lb/day</span></div>
+              </div>
+              <div style="border-top:1px dashed oklch(0.86 0.03 150);padding-top:10px">
+                <div style="font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:#8a8474;font-family:'IBM Plex Mono',monospace">Peak day</div>
+                <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums">{{ peakRationFmt }} <span style="font-size:12px;color:#8a8474;font-weight:400">lb/day</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ration chart, tucked into the feed hero -->
+          <sc-if value="{{ showRationChart }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:18px;border-top:1px solid oklch(0.9 0.02 150);padding-top:14px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:2px">
+              <h3 style="margin:0;font-size:13px;font-weight:600;color:#3f3b33">Daily ration across the flock</h3>
+              <span style="font-size:11px;color:#8a8474;font-family:'IBM Plex Mono',monospace">lb / day · all birds</span>
+            </div>
+            <p style="margin:0 0 8px;font-size:11.5px;color:#8a8474;line-height:1.4">Don't average this—feed need rises sharply in the final weeks. The dashed line marks today.</p>
+            {{ rationChartEl }}
+          </div>
+          </sc-if>
+        </section>
+
+        <!-- ===== TIER 2 · The economics (quieter) ===== -->
+        <section style="margin-bottom:20px">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin:0 2px 10px">
+            <h3 style="margin:0;font-size:12px;font-family:'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#8a8474">The economics</h3>
+            <sc-if value="{{ includeSales }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:#736d61">Flock profit <strong style="color:{{ profitColor }};font-variant-numeric:tabular-nums">{{ profitFmt }}</strong></span></sc-if>
+            <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:#736d61">Cost to raise <strong style="color:#33302a;font-variant-numeric:tabular-nums">{{ totalCostFmt }}</strong></span></sc-if>
+          </div>
+          <sc-if value="{{ includeSales }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Revenue</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:#54503f">{{ revenueFmt }}</div>
+            </div>
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Total cost</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:#54503f">{{ totalCostFmt }}</div>
+            </div>
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Break-even /lb</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:#54503f">{{ breakEvenFmt }}</div>
+            </div>
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Profit / bird</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ profitColor }}">{{ profitPerBirdFmt }}</div>
+            </div>
+            <div style="background:{{ profitCardBg }};border:1px solid {{ profitCardBorder }};border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Flock profit</div>
+              <div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:{{ profitColor }}">{{ profitFmt }}</div>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ noSales }}" hint-placeholder-val="{{ false }}">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px">
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Total cost</div>
+              <div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:#33302a">{{ totalCostFmt }}</div>
+            </div>
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Cost / bird</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:#54503f">{{ costPerBirdFmt }}</div>
+            </div>
+            <div style="background:#fffdf9;border:1px solid #e8e4da;border-radius:9px;padding:11px 13px;display:flex;flex-direction:column;gap:3px">
+              <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a9384;font-family:'IBM Plex Mono',monospace">Cost / dressed lb</div>
+              <div style="font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;color:#54503f">{{ costPerLbFmt }}</div>
+            </div>
+          </div>
+          </sc-if>
+        </section>
+
+        <!-- Weekly table -->
+        <sc-if value="{{ showWeeklyTable }}" hint-placeholder-val="{{ true }}">
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 18px 8px;margin-bottom:20px;overflow-x:auto">
+          <h3 style="margin:0 0 12px;font-size:15px;font-weight:600">Week-by-week feed plan</h3>
+          <table style="width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;min-width:520px">
+            <thead>
+              <tr style="text-align:right;color:#8a8474;font-family:'IBM Plex Mono',monospace;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em">
+                <th style="text-align:left;padding:0 8px 8px 0;font-weight:500">Wk</th>
+                <th style="text-align:left;padding:0 8px 8px;font-weight:500">Age (days)</th>
+                <th style="padding:0 8px 8px;font-weight:500">Birds</th>
+                <th style="padding:0 8px 8px;font-weight:500">Feed/day</th>
+                <th style="padding:0 8px 8px;font-weight:500">Feed/wk</th>
+                <th style="padding:0 8px 8px;font-weight:500">Bags/wk</th>
+                <th style="padding:0 8px 8px;font-weight:500">Cum. feed</th>
+                <th style="padding:0 0 8px 8px;font-weight:500">Cum. cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ weeklyRows }}" as="row" hint-placeholder-count="8">
+                <tr style="text-align:right;border-top:1px solid #f0ede4">
+                  <td style="text-align:left;padding:7px 8px 7px 0;font-weight:600;color:oklch(0.5 0.05 150)">{{ row.week }}</td>
+                  <td style="text-align:left;padding:7px 8px;color:#736d61">{{ row.ageRange }}</td>
+                  <td style="padding:7px 8px">{{ row.birdsAlive }}</td>
+                  <td style="padding:7px 8px">{{ row.feedDay }}</td>
+                  <td style="padding:7px 8px">{{ row.feedWeek }}</td>
+                  <td style="padding:7px 8px">{{ row.bagsWeek }}</td>
+                  <td style="padding:7px 8px;color:#736d61">{{ row.cumFeed }}</td>
+                  <td style="padding:7px 0 7px 8px;color:#736d61">{{ row.cumCost }}</td>
+                </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </section>
+        </sc-if>
+
+        <!-- Cost breakdown -->
+        <sc-if value="{{ showCostBreakdown }}" hint-placeholder-val="{{ true }}">
+        <section style="background:#fffdf9;border:1px solid #e5e1d7;border-radius:10px;padding:16px 18px">
+          <h3 style="margin:0 0 14px;font-size:15px;font-weight:600">Where the money goes</h3>
+          <div style="display:flex;height:26px;border-radius:6px;overflow:hidden;margin-bottom:16px;background:#efece3">
+            <sc-for list="{{ costSegments }}" as="seg" hint-placeholder-count="6">
+              <div title="{{ seg.label }}" style="width: {{ seg.pct }}%; background: {{ seg.color }}; height:100%"></div>
+            </sc-for>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums">
+            <tbody>
+              <sc-for list="{{ costSegments }}" as="seg" hint-placeholder-count="6">
+                <tr style="border-top:1px solid #f0ede4">
+                  <td style="padding:7px 0;width:20px"><span style="display:inline-block;width:11px;height:11px;border-radius:3px;background: {{ seg.color }}"></span></td>
+                  <td style="padding:7px 8px;color:#3f3b33">{{ seg.label }}</td>
+                  <td style="padding:7px 8px;text-align:right;color:#8a8474;font-family:'IBM Plex Mono',monospace;font-size:12px">{{ seg.pctFmt }}</td>
+                  <td style="padding:7px 0;text-align:right;font-weight:500">{{ seg.valueFmt }}</td>
+                </tr>
+              </sc-for>
+              <tr style="border-top:2px solid #e5e1d7">
+                <td></td>
+                <td style="padding:9px 8px;font-weight:600">Total cost</td>
+                <td></td>
+                <td style="padding:9px 0;text-align:right;font-weight:700;font-variant-numeric:tabular-nums">{{ totalCostFmt }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        </sc-if>
+
+      </div>
+    </div>
+
+    <p style="margin:24px auto 0;max-width:1200px;font-size:11px;color:#a39c8d;line-height:1.5;text-align:center">Estimates only—actual results vary with weather, feed quality, and management. Numbers update live and are saved in this page's link so you can share a scenario.</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showRationChart&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;showWeeklyTable&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;},&quot;showCostBreakdown&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Display&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    const today = new Date();
+    const arr = new Date(today.getTime() - 28 * 86400000);
+    this.state = {
+      chicksStarted: 100,
+      breed: 'cornish',
+      arrivalDate: this.iso(arr),
+      processingAgeDays: 56,
+      feedCostPerBag: 24,
+      bagSize: 50,
+      mortalityPct: 5,
+      targetLiveWeight: 6.0,
+      dressedYieldPct: 72,
+      fcr: 3.2,
+      chickCost: 3.50,
+      processingCostPerBird: 4.00,
+      packagingCostPerBird: 0.75,
+      miscCostPerBird: 0.50,
+      retailPricePerLb: 6.50,
+      wholesalePricePerLb: 4.50,
+      birdsSoldRetail: 95,
+      birdsSoldWholesale: 0,
+      laborHours: 40,
+      targetWage: 20,
+      includeSales: true,
+      includeLabor: true,
+      copied: false
+    };
+    this.serialKeys = ['chicksStarted','breed','arrivalDate','processingAgeDays','feedCostPerBag','bagSize','mortalityPct','targetLiveWeight','dressedYieldPct','fcr','chickCost','processingCostPerBird','packagingCostPerBird','miscCostPerBird','retailPricePerLb','wholesalePricePerLb','birdsSoldRetail','birdsSoldWholesale','laborHours','targetWage','includeSales','includeLabor'];
+    this.breedDefaults = {
+      cornish: { processingAgeDays: 56, mortalityPct: 5, targetLiveWeight: 6.0, dressedYieldPct: 72, fcr: 3.2 },
+      ranger:  { processingAgeDays: 77, mortalityPct: 5, targetLiveWeight: 5.8, dressedYieldPct: 70, fcr: 4.1 }
+    };
+    this.typicalDefaults = {
+      feedCostPerBag: 24, bagSize: 50, chickCost: 3.50, processingCostPerBird: 4.00,
+      packagingCostPerBird: 0.75, miscCostPerBird: 0.50, retailPricePerLb: 6.50,
+      wholesalePricePerLb: 4.50, laborHours: 40, targetWage: 20
+    };
+    this.breedFields = ['processingAgeDays','mortalityPct','targetLiveWeight','dressedYieldPct','fcr'];
+    this.cornishCurve = [3,7,10,13,16,18,17,16];
+    this.rangerCurve = [2,4,6,8,10,11,12,12,12,12,11];
+    this.onField = this.onField.bind(this);
+    this.onResetField = this.onResetField.bind(this);
+    this.copyLink = this.copyLink.bind(this);
+  }
+
+  componentDidMount() {
+    try {
+      const q = new URLSearchParams(window.location.search);
+      const patch = {};
+      this.serialKeys.forEach(k => {
+        if (q.has(k)) {
+          const raw = q.get(k);
+          if (k === 'breed' || k === 'arrivalDate') patch[k] = raw;
+          else if (k === 'includeSales' || k === 'includeLabor') patch[k] = (raw === 'true' || raw === '1');
+          else { const n = Number(raw); if (isFinite(n)) patch[k] = n; }
+        }
+      });
+      if (Object.keys(patch).length) this.setState(patch);
+    } catch (e) {}
+  }
+
+  // ---- helpers ----
+  iso(d) { return d.toISOString().slice(0, 10); }
+  num(x) { const n = Number(x); return isFinite(n) && n > 0 ? n : 0; }
+  clamp(v, lo, hi) { return Math.min(hi, Math.max(lo, v)); }
+  fmt0(n) { if (!isFinite(n)) n = 0; return Math.round(n).toLocaleString('en-US'); }
+  fmt1(n) { if (!isFinite(n)) n = 0; return n.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); }
+  money(n) { if (!isFinite(n)) n = 0; return (n < 0 ? '\u2212$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  money0(n) { if (!isFinite(n)) n = 0; return (n < 0 ? '\u2212$' : '$') + Math.round(Math.abs(n)).toLocaleString('en-US'); }
+
+  currentAgeDays() {
+    try {
+      const arr = new Date(this.state.arrivalDate + 'T00:00:00');
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const d = Math.floor((today - arr) / 86400000);
+      return this.clamp(isFinite(d) ? d : 0, 0, 400);
+    } catch (e) { return 0; }
+  }
+
+  pushUrl() {
+    try {
+      const q = new URLSearchParams();
+      this.serialKeys.forEach(k => q.set(k, String(this.state[k])));
+      const url = window.location.pathname + '?' + q.toString();
+      window.history.replaceState(null, '', url);
+    } catch (e) {}
+  }
+
+  onField(e) {
+    const t = e.target;
+    const name = t.name;
+    let raw = t.value;
+    this.setState(prev => {
+      const st = { ...prev };
+      if (t.type === 'checkbox') { st[name] = t.checked; return st; }
+      if (name === 'breed') {
+        st.breed = raw;
+        if (raw !== 'custom' && this.breedDefaults[raw]) Object.assign(st, this.breedDefaults[raw]);
+      } else if (name === 'arrivalDate') {
+        st.arrivalDate = raw;
+      } else if (name === 'currentAge') {
+        const age = Math.max(0, Number(raw) || 0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        st.arrivalDate = this.iso(new Date(today.getTime() - age * 86400000));
+      } else {
+        st[name] = raw === '' ? '' : Number(raw);
+        if (this.breedFields.indexOf(name) !== -1) st.breed = 'custom';
+      }
+      return st;
+    }, this.pushUrl.bind(this));
+  }
+
+  onResetField(e) {
+    const field = e.currentTarget.dataset.field;
+    this.setState(prev => {
+      const st = { ...prev };
+      const bd = this.breedDefaults[prev.breed === 'ranger' ? 'ranger' : 'cornish'];
+      if (bd && field in bd) st[field] = bd[field];
+      else if (field in this.typicalDefaults) st[field] = this.typicalDefaults[field];
+      return st;
+    }, this.pushUrl.bind(this));
+  }
+
+  copyLink() {
+    try {
+      const q = new URLSearchParams();
+      this.serialKeys.forEach(k => q.set(k, String(this.state[k])));
+      const url = window.location.origin + window.location.pathname + '?' + q.toString();
+      const done = () => { this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 1700); };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, done);
+      else done();
+    } catch (e) {}
+  }
+
+  // ---- daily feed curve ----
+  buildDaily(curve, days, totalFeed) {
+    const weeks = curve.length;
+    const cum = [0];
+    for (let i = 0; i < weeks; i++) cum.push(cum[cum.length - 1] + curve[i]);
+    const tot = cum[weeks];
+    for (let i = 0; i <= weeks; i++) cum[i] /= tot; // normalize 0..1
+    const cumFrac = (t) => {
+      if (t <= 0) return 0; if (t >= 1) return 1;
+      const x = t * weeks; const i = Math.floor(x); const f = x - i;
+      return cum[i] + (cum[i + 1] - cum[i]) * f;
+    };
+    const daily = [];
+    for (let d = 1; d <= days; d++) {
+      const frac = cumFrac(d / days) - cumFrac((d - 1) / days);
+      daily.push(frac * totalFeed);
+    }
+    return daily;
+  }
+
+  makeRationChart(daily, currentDay, peak) {
+    const h = React.createElement;
+    const W = 600, H = 236, padL = 42, padR = 14, padT = 18, padB = 30;
+    const n = daily.length, iw = W - padL - padR, ih = H - padT - padB;
+    const max = peak > 0 ? peak : 1;
+    const X = i => padL + (n <= 1 ? 0 : (i / (n - 1)) * iw);
+    const Y = v => padT + ih - (v / max) * ih;
+    const els = [];
+    [0, 0.5, 1].forEach(f => {
+      const y = padT + ih - f * ih;
+      els.push(h('line', { key: 'g' + f, x1: padL, y1: y, x2: W - padR, y2: y, stroke: '#ece8de', strokeWidth: 1 }));
+      els.push(h('text', { key: 'gt' + f, x: padL - 7, y: y + 3, textAnchor: 'end', fontSize: 9, fill: '#a39c8d', fontFamily: 'IBM Plex Mono, monospace' }, this.fmt1(f * max)));
+    });
+    const weeks = Math.ceil(n / 7);
+    for (let w = 1; w <= weeks; w++) {
+      const day = Math.min(w * 7, n);
+      els.push(h('text', { key: 'w' + w, x: X(day - 1), y: H - 9, textAnchor: 'middle', fontSize: 9, fill: '#a39c8d', fontFamily: 'IBM Plex Mono, monospace' }, 'w' + w));
+    }
+    let line = '', area = 'M' + X(0).toFixed(1) + ' ' + (padT + ih).toFixed(1) + ' ';
+    daily.forEach((v, i) => {
+      const cmd = (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1) + ' ';
+      line += cmd; area += 'L' + X(i).toFixed(1) + ' ' + Y(v).toFixed(1) + ' ';
+    });
+    area += 'L' + X(n - 1).toFixed(1) + ' ' + (padT + ih).toFixed(1) + ' Z';
+    els.push(h('path', { key: 'area', d: area, fill: 'oklch(0.52 0.09 150 / 0.13)' }));
+    els.push(h('path', { key: 'line', d: line, fill: 'none', stroke: 'oklch(0.52 0.09 150)', strokeWidth: 2, strokeLinejoin: 'round' }));
+    if (currentDay >= 1 && currentDay <= n) {
+      const x = X(currentDay - 1), y = Y(daily[currentDay - 1]);
+      els.push(h('line', { key: 'cl', x1: x, y1: padT, x2: x, y2: padT + ih, stroke: 'oklch(0.6 0.13 55)', strokeWidth: 1.5, strokeDasharray: '4 3' }));
+      els.push(h('circle', { key: 'cc', cx: x, cy: y, r: 4, fill: 'oklch(0.6 0.13 55)' }));
+      els.push(h('text', { key: 'ct', x: this.clamp(x, padL + 12, W - padR - 12), y: padT - 5, textAnchor: 'middle', fontSize: 9.5, fontWeight: 600, fill: 'oklch(0.55 0.13 55)', fontFamily: 'IBM Plex Mono, monospace' }, 'today'));
+    }
+    return h('svg', { viewBox: '0 0 ' + W + ' ' + H, width: '100%', preserveAspectRatio: 'xMidYMid meet', style: { height: 'auto', display: 'block', maxHeight: '260px' } }, els);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const chicks = this.num(s.chicksStarted);
+    const mortalityRate = this.clamp(this.num(s.mortalityPct), 0, 50) / 100;
+    const targetLiveWeight = this.num(s.targetLiveWeight);
+    const dressedYield = this.clamp(Number(s.dressedYieldPct) || 0, 50, 80) / 100;
+    const fcr = this.clamp(this.num(s.fcr), 2, 6);
+    const processingAge = Math.round(this.clamp(this.num(s.processingAgeDays) || 56, 35, 120));
+    const bagSize = Math.max(1, this.num(s.bagSize) || 50);
+    const feedCostPerBag = this.num(s.feedCostPerBag);
+
+    const survivingBirds = chicks * (1 - mortalityRate);
+    const totalFeedLb = survivingBirds * targetLiveWeight * fcr;
+    const feedBags = Math.ceil(totalFeedLb / bagSize) || 0;
+    const feedCost = feedBags * feedCostPerBag;
+    const feedCostPerLb = feedCostPerBag / bagSize;
+
+    const dressedPerBird = targetLiveWeight * dressedYield;
+    const totalDressed = survivingBirds * dressedPerBird;
+
+    const includeSales = s.includeSales !== false;
+    const soldRetail = Math.min(this.num(s.birdsSoldRetail), survivingBirds);
+    const soldWholesale = Math.min(this.num(s.birdsSoldWholesale), Math.max(0, survivingBirds - soldRetail));
+    const revenue = includeSales ? (soldRetail * dressedPerBird * this.num(s.retailPricePerLb) + soldWholesale * dressedPerBird * this.num(s.wholesalePricePerLb)) : 0;
+
+    const chickCostTotal = chicks * this.num(s.chickCost);
+    const processingCostTotal = survivingBirds * this.num(s.processingCostPerBird);
+    const packagingCostTotal = survivingBirds * this.num(s.packagingCostPerBird);
+    const miscCostTotal = survivingBirds * this.num(s.miscCostPerBird);
+    const includeLabor = s.includeLabor !== false;
+    const laborHours = this.num(s.laborHours);
+    const laborCostTotal = includeLabor ? laborHours * this.num(s.targetWage) : 0;
+    const totalCost = feedCost + chickCostTotal + processingCostTotal + packagingCostTotal + miscCostTotal + laborCostTotal;
+
+    const profit = revenue - totalCost;
+    const profitPerBird = survivingBirds > 0 ? profit / survivingBirds : 0;
+    const breakEven = totalDressed > 0 ? totalCost / totalDressed : 0;
+    const costPerBird = survivingBirds > 0 ? totalCost / survivingBirds : 0;
+    const costPerLb = breakEven;
+    const laborEarned = laborHours > 0 ? (profit + laborCostTotal) / laborHours : 0;
+
+    // daily curve
+    const curve = s.breed === 'ranger' ? this.rangerCurve : this.cornishCurve;
+    const daily = this.buildDaily(curve, processingAge, totalFeedLb);
+    const peak = daily.length ? Math.max.apply(null, daily) : 0;
+    const currentAgeDays = this.currentAgeDays();
+    let todayRation = 0;
+    if (currentAgeDays >= 1 && currentAgeDays <= processingAge) todayRation = daily[currentAgeDays - 1];
+    else if (currentAgeDays > processingAge) todayRation = 0;
+    else if (daily.length) todayRation = daily[0];
+
+    // weekly rows
+    const weeklyRows = [];
+    let cum = 0;
+    const numWeeks = Math.ceil(processingAge / 7);
+    for (let w = 1; w <= numWeeks; w++) {
+      const startDay = (w - 1) * 7 + 1;
+      const endDay = Math.min(w * 7, processingAge);
+      const days = endDay - startDay + 1;
+      let feedWeek = 0;
+      for (let d = startDay; d <= endDay; d++) feedWeek += daily[d - 1] || 0;
+      cum += feedWeek;
+      const birdsAlive = chicks - (chicks - survivingBirds) * (endDay / processingAge);
+      weeklyRows.push({
+        week: w,
+        ageRange: startDay + '\u2013' + endDay,
+        birdsAlive: this.fmt0(birdsAlive),
+        feedDay: this.fmt1(feedWeek / days),
+        feedWeek: this.fmt0(feedWeek),
+        bagsWeek: this.fmt1(feedWeek / bagSize),
+        cumFeed: this.fmt0(cum),
+        cumCost: this.money0(cum * feedCostPerLb)
+      });
+    }
+
+    // cost segments
+    const rawSegs = [
+      { label: 'Feed', value: feedCost, color: 'oklch(0.52 0.09 150)' },
+      { label: 'Chicks', value: chickCostTotal, color: 'oklch(0.66 0.11 90)' },
+      { label: 'Processing', value: processingCostTotal, color: 'oklch(0.62 0.12 40)' },
+      { label: 'Packaging', value: packagingCostTotal, color: 'oklch(0.6 0.08 300)' },
+      { label: 'Misc', value: miscCostTotal, color: 'oklch(0.7 0.04 250)' },
+      { label: 'Labor', value: laborCostTotal, color: 'oklch(0.5 0.07 220)' }
+    ];
+    const costSegments = rawSegs.map(seg => {
+      const pct = totalCost > 0 ? (seg.value / totalCost) * 100 : 0;
+      return { label: seg.label, color: seg.color, value: seg.value, valueFmt: this.money0(seg.value), pct: pct, pctFmt: (Math.round(pct) + '%') };
+    }).filter(seg => seg.value > 0.005);
+
+    // summary
+    let summarySentence, summaryAccent;
+    if (!includeSales) {
+      summaryAccent = 'oklch(0.52 0.09 150)';
+      summarySentence = 'At these numbers, you need ' + this.fmt0(totalFeedLb) + ' lb of feed, or ' + feedBags + ' bags, and about ' + this.money0(totalCost) + ' to raise the flock \u2014 roughly ' + this.money(costPerBird) + ' per bird, or ' + this.money(costPerLb) + ' per dressed lb.';
+    } else if (profit >= 0) {
+      summaryAccent = 'oklch(0.52 0.09 150)';
+      summarySentence = 'At these numbers, you need ' + this.fmt0(totalFeedLb) + ' lb of feed, or ' + feedBags + ' bags. The flock makes ' + this.money0(profit) + ' total, about ' + this.money(profitPerBird) + ' per bird, with a break-even price of ' + this.money(breakEven) + '/lb dressed.';
+    } else {
+      summaryAccent = 'oklch(0.55 0.15 27)';
+      summarySentence = 'At these numbers, this flock loses ' + this.money0(-profit) + '. You need at least ' + this.money(breakEven) + '/lb dressed weight to break even.';
+    }
+    const profitColor = profit >= 0 ? 'oklch(0.46 0.11 150)' : 'oklch(0.53 0.16 27)';
+
+    return {
+      // input bindings
+      chicksStarted: s.chicksStarted, breed: s.breed, arrivalDate: s.arrivalDate,
+      processingAgeDays: s.processingAgeDays, feedCostPerBag: s.feedCostPerBag, bagSize: s.bagSize,
+      mortalityPct: s.mortalityPct, targetLiveWeight: s.targetLiveWeight, dressedYieldPct: s.dressedYieldPct,
+      fcr: s.fcr, chickCost: s.chickCost, processingCostPerBird: s.processingCostPerBird,
+      packagingCostPerBird: s.packagingCostPerBird, miscCostPerBird: s.miscCostPerBird,
+      retailPricePerLb: s.retailPricePerLb, wholesalePricePerLb: s.wholesalePricePerLb,
+      birdsSoldRetail: s.birdsSoldRetail, birdsSoldWholesale: s.birdsSoldWholesale, survivingBirdsFmt: this.fmt0(survivingBirds),
+      laborHours: s.laborHours, targetWage: s.targetWage,
+      currentAgeDays: currentAgeDays,
+      // cards
+      totalFeedFmt: this.fmt0(totalFeedLb),
+      feedBags: feedBags,
+      feedCostFmt: this.money0(feedCost),
+      todayRationFmt: this.fmt1(todayRation),
+      peakRationFmt: this.fmt1(peak),
+      revenueFmt: this.money0(revenue),
+      totalCostFmt: this.money0(totalCost),
+      profitPerBirdFmt: this.money(profitPerBird),
+      profitFmt: this.money0(profit),
+      breakEvenFmt: this.money(breakEven),
+      laborEarnedFmt: this.money(laborEarned),
+      profitColor: profitColor,
+      profitCardBg: profit >= 0 ? 'oklch(0.97 0.02 150)' : 'oklch(0.97 0.03 30)',
+      profitCardBorder: profit >= 0 ? 'oklch(0.85 0.05 150)' : 'oklch(0.85 0.07 30)',
+      // summary
+      summarySentence: summarySentence,
+      summaryAccent: summaryAccent,
+      // tables + chart
+      weeklyRows: weeklyRows,
+      costSegments: costSegments,
+      rationChartEl: this.makeRationChart(daily, currentAgeDays, peak),
+      // display toggles
+      showRationChart: this.props.showRationChart !== false,
+      showWeeklyTable: this.props.showWeeklyTable !== false,
+      showCostBreakdown: this.props.showCostBreakdown !== false,
+      // ui
+      includeSales: includeSales,
+      includeLabor: includeLabor,
+      noSales: !includeSales,
+      noLabor: !includeLabor,
+      costPerBirdFmt: this.money(costPerBird),
+      costPerLbFmt: this.money(costPerLb),
+      copyLabel: s.copied ? 'Copied \u2713' : 'Copy scenario link',
+      onField: this.onField,
+      onResetField: this.onResetField,
+      copyLink: this.copyLink
+    };
+  }
+}
+</script>
+</body>
+</html>

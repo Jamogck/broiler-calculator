@@ -1,0 +1,26 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: #f4f2ec;
+}
+
+a {
+  color: oklch(0.52 0.09 150);
+}
+
+a:hover {
+  color: oklch(0.44 0.09 150);
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid oklch(0.72 0.09 150 / 0.5);
+  outline-offset: 0;
+}
