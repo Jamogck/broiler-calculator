@@ -50,11 +50,10 @@ export function isoDate(d: Date): string {
 }
 
 export function defaultState(today: Date = new Date()): CalculatorState {
-  const arrival = new Date(today.getTime() - 28 * 86400000);
   return {
     chicksStarted: 100,
     breed: "cornish",
-    arrivalDate: isoDate(arrival),
+    arrivalDate: isoDate(today),
     processingAgeDays: 56,
     feedCostPerBag: 24,
     bagSize: 50,
